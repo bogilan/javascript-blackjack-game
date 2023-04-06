@@ -1,0 +1,75 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.game-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.dealer,
+.player {
+    padding-top: 20px;
+}
+
+.dealers-cards .card.hidden {
+    background-color: rgb(31, 83, 224);
+    color: rgb(31, 83, 224);
+}
+
+.cards {
+    display: flex;
+    padding: 10px 0;
+}
+
+.card {
+    width: 150px;
+    height: 200px;
+    margin: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 46px;
+    border: 2px solid black;
+    box-shadow: inset -5px -5px 2px 2px rgba(0, 0, 0, 0.25);
+}
+
+.btn {
+    width: 80px;
+    height: 30px;
+    margin: 10px;
+    font-weight: bold;
+    color: wheat;
+    border: none;
+    cursor: pointer;
+    box-shadow: inset -5px -5px 2px 2px rgba(0, 0, 0, 0.25);
+}
+
+
+.btn:active {
+    box-shadow: none;
+}
+
+.new-card-btn {
+    background-color: rgb(14, 87, 14);
+}
+
+.stop-btn {
+    background-color: rgb(70, 18, 122);
+}
+
+.new-game {
+    background-color: rgb(128, 8, 8);
+    width: 100px;
+}
+
+.game-result {
+    margin-top: 20px;
+    font-size: 42px;
+    font-weight: bold;
+}
