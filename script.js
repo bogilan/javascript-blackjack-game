@@ -2,24 +2,28 @@ const dealer = document.querySelector('.dealers-cards');
 const player = document.querySelector('.players-cards');
 const newCardBtn = document.querySelector('.new-card-btn');
 const stopGameBtn = document.querySelector('.stop-btn');
+const newGameBtn = document.querySelector('.new-game');
+const gameResult = document.querySelector('.game-result')
 
 const suits = ['\u2665', '\u2666', '\u2663', '\u2660'];;
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 
 // Create an empty deck array
-const deck = [];
+let deck = [];
 
-// Game End status
-let gameEnd = false;
+// Start New Game
+newGame();
 
-// Loop through each suit and rank to create cards
-for (let i = 0; i < suits.length; i++) {
-  for (let j = 0; j < ranks.length; j++) {
-    const card = {
-      suit: suits[i],
-      rank: ranks[j]
-    };
-    deck.push(card);
+function createDeck() {
+  // Loop through each suit and rank to create cards
+  for (let i = 0; i < suits.length; i++) {
+    for (let j = 0; j < ranks.length; j++) {
+      const card = {
+        suit: suits[i],
+        rank: ranks[j]
+      };
+      deck.push(card);
+    }
   }
 }
 
@@ -31,9 +35,6 @@ function shuffleDeck() {
     }
 }
 
-// Call Shuffle function
-shuffleDeck();
-
 // Deal the initial two cards to the dealer and the player
 function dealCards() {
     const dealerHand = [deck.shift(), deck.shift()];
@@ -43,13 +44,6 @@ function dealCards() {
         player: playerHand
     };
 }
-
-  // Deal the initial cards
-const hands = dealCards();
-
-// Retrieve the dealer's and player's hands
-const dealerHand = hands.dealer;
-const playerHand = hands.player;
 
 // Function to retrieve user's cards and display them
 function displayCards(user, hand) {
@@ -62,9 +56,10 @@ function displayCards(user, hand) {
     })
 }
 
-// Display cards for dealer and player
-displayCards(dealer, dealerHand);
-displayCards(player, playerHand);
+function hideDealersCard() {
+  const hiddenCard = document.querySelector('.dealers-cards .card:first-child');
+  hiddenCard.classList.toggle('hidden');
+}
 
 // Calculate score function
 function calculateScore(hand) {
@@ -103,24 +98,20 @@ function calculateScore(hand) {
   return score;
 }
 
-let dealerScore = calculateScore(dealerHand);
-let playerScore = calculateScore(playerHand);
-
 // Compare Scores to determine the winner
 function compareScores(dealerScore, playerScore) {
   if (dealerScore > 21) {
-    console.log('Player wins!');
+    gameResult.textContent = 'Player wins!';
   } else if (playerScore > 21) {
-    console.log('Dealer wins!');
+    gameResult.textContent = 'Dealer wins!';
   } else if (dealerScore > playerScore) {
-    console.log('Dealer wins!');
+    gameResult.textContent = 'Dealer wins!';
   } else if (playerScore > dealerScore) {
-    console.log('Player wins!');
+    gameResult.textContent = 'Player wins!';
   } else {
-    console.log('It\'s a tie!');
+    gameResult.textContent = 'It\'s a tie!';
   }
 }
-
 
 // Game Ending Conditions
 function isGameOver(dealerScore, playerScore) {
@@ -136,13 +127,18 @@ newCardBtn.addEventListener('click', ()=> {
   gameEnd = isGameOver(dealerScore, playerScore);
   if(gameEnd) {
     console.log(gameEnd)
-    compareScores(dealerScore, playerScore);
+    hideDealersCard();
+    dealerTurn(dealerHand, playerHand);
+    newCardBtn.disabled = true;
   }
 })
 
 // Player Stops
 stopGameBtn.addEventListener('click', ()=> {
   gameEnd = true;
+  newCardBtn.disabled = true;
+  stopGameBtn.disabled = true;
+  hideDealersCard();
   dealerTurn(dealerHand, playerHand);
 })
 
@@ -150,14 +146,61 @@ stopGameBtn.addEventListener('click', ()=> {
 function dealerTurn(dealerHand, playerHand) {
   dealerScore = calculateScore(dealerHand);
   playerScore = calculateScore(playerHand);
-
   // While score under 17 dealer pulls another card
-  while (dealerScore < 17) {
-    const card = deck.shift();
-    dealerHand.push(card);
-    displayCards(dealer, dealerHand);
-    dealerScore = calculateScore(dealerHand);
+  function drawDealerCard() {
+    setTimeout(() => {
+      const card = deck.shift();
+      dealerHand.push(card);
+      displayCards(dealer, dealerHand);  
+      dealerScore = calculateScore(dealerHand);
+      if (dealerScore < 17) {
+        drawDealerCard();
+      } else {
+        compareScores(dealerScore, playerScore);
+      }
+    }, 1000); // Set the timeout value to adjust the drawing speed of cards in milliseconds
   }
-
-  compareScores(dealerScore, playerScore);
+  drawDealerCard();
 }
+
+// Start New Game Function
+function newGame() {
+  // Reset game end status
+  gameEnd = false;
+  
+  // Clear dealer and player hands
+  dealerHand = [];
+  playerHand = [];
+
+  // Restart dealer and player scores
+  dealerScore = 0;
+  playerScore = 0;
+
+  // Clear game result text
+  gameResult.textContent = '';
+
+  // Clear dealer and player cards
+  dealer.textContent = '';
+  player.textContent = '';
+
+  // Create a new deck, shuffle it, and deal initial cards
+  createDeck();
+  shuffleDeck();
+  let hands = dealCards();
+  dealerHand = hands.dealer;
+  playerHand = hands.player;
+
+  // Display initial cards and hide dealer's first card
+  displayCards(dealer, dealerHand);
+  displayCards(player, playerHand);
+  hideDealersCard();
+
+  // Enable new card and stop game buttons
+  newCardBtn.disabled = false;
+  stopGameBtn.disabled = false;
+}
+
+// Start new game on button click
+newGameBtn.addEventListener('click', () => {
+  newGame();
+});
